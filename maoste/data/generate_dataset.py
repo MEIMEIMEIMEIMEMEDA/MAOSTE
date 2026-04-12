@@ -218,11 +218,9 @@ def convert_to_npz(processor: RawDataProcessor, mode='train'):
 
 if __name__ == '__main__':
   raw_data_cfg = RawDataConfig(
-      src_root='/_jiahaomeibwy/finish_processed_data/',
-      dst_root='/_jiahaomeibwy/finish_processed_data/npz',
+      src_root='/original_dataset/finish_processed_data/',
+      dst_root='/original_dataset/finish_processed_data/npz',
   )
-  tiny_dir = raw_data_cfg.dst_root / 'tiny'
-  tiny_dir.mkdir(parents=True, exist_ok=True)
   processor = RawDataProcessor(raw_data_cfg)
   convert_to_npz(processor, 'dev')
   convert_to_npz(processor, 'test')
