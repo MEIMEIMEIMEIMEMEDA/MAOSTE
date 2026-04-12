@@ -446,3 +446,39 @@ class ToknizerWrapper:
              self.decode(decoder_input_tok_id, skip_special_tokens=False))
             for word_tok_ids, decoder_input_tok_id in zip(
                 tok_output.token_ids, tok_output.decoder_token_ids)]
+
+
+if __name__ == '__main__':
+  from transformers import AutoTokenizer
+
+  # from transformers import BertTokenizer
+  from maoste.data.data_types import LabelType
+  from maoste.tools.labels import register
+  tks = [
+      AutoTokenizer.from_pretrained('/nfs/volume-382-182/hub/t5-base',
+                                    add_prefix_space=True),
+      # AutoTokenizer.from_pretrained('google/flan-t5-base',
+      #                               add_prefix_space=True)
+  ]
+  labels_mapping, reverse_labels_mapping = register[
+      LabelType.BIO_SENTIMENT].copy()
+  # TODO
+  for tk in tks:
+    t = ToknizerWrapper(tk, labels_mapping, reverse_labels_mapping)
+    # _words = [['A', 'humanaaa', 'likebb', 'me', 'todayaaa', 'me'],
+    #           ['A', 'humanaaa', 'likebb', 'me', 'todayaaa', 'me', 'sdfsd']]
+    # _label = [['O', 'B-POS', 'I-POS', 'O', 'B-NEU', 'B-NEG'],
+    #           ['O', 'B-POS', 'I-POS', 'O', 'B-NEU', 'B-NEG', 'O']]
+    # _tok_output = t.encode(_words, _label)
+    # _mask = _tok_output.attention_mask[0]
+    # _mask[2] = 0
+    # word_mask = t.token_masks_to_word_masks(_tok_output.word_ids[0], _mask)
+    # print('========={}=========='.format(tk.__class__))
+    # print(_tok_output)
+    # print(t.decode_from_output(_tok_output))
+    # print(word_mask)
+    # print(_tok_output.attention_mask[0])
+    # print(t.word_masks_to_token_masks(_tok_output.word_ids[0], word_mask))
+    print(t.words2inputs('in the image'))
+    print(t.words2inputs('not'))
+    print(t.decode([59]))

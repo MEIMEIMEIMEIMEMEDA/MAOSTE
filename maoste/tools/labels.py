@@ -168,9 +168,94 @@ class AspectLabelExistLC(LabelConvertor):
     )
 
 
+class AspectLabelExistWithPolarityLC(LabelConvertor):
+  in_image_sentence_template: str = 'The sentiment polarity of {aspect} is {label}, and it is in the image'
+  not_in_image_sentence_template: str = 'The sentiment polarity of {aspect} is {label}, and it is not in the image'
+
+  @classmethod
+  def decode(self, sentence: str) -> LabelConvertorInputs:
+    split_parts = sentence.split(', and it')
+    if len(split_parts) != 2:
+      return LabelConvertorInputs('', '', None)
+    if 'The sentiment polarity of' in split_parts[0]:
+      _indice = split_parts[0].index('The sentiment polarity of')
+    else:
+      return LabelConvertorInputs('', '', None)
+
+    split_aspect_label = split_parts[0][_indice:].strip().split('is')
+    if len(split_aspect_label) != 2:
+      return LabelConvertorInputs('', '', None)
+    in_the_image = False if 'not in the image' in split_parts[1] else True
+    in_the_image = False if 'in the image' not in split_parts[
+        1] else in_the_image
+    return LabelConvertorInputs(
+        split_aspect_label[0].strip(),
+        split_aspect_label[1].strip(),
+        in_the_image,
+    )
+
+
+class AspectExistLabelLC(LabelConvertor):
+  in_image_sentence_template: str = 'Identified aspect: {aspect} is in the image with a {label} sentiment'
+  not_in_image_sentence_template: str = 'Identified aspect: {aspect} is not in the image with a {label} sentiment'
+
+  @classmethod
+  def decode(self, sentence: str) -> LabelConvertorInputs:
+    if 'Identified aspect' in sentence:
+      _indice = sentence.index('Identified aspect')
+    else:
+      return LabelConvertorInputs('', '', None)
+
+    sub_sentence = sentence[_indice:].strip()
+    in_the_image = False if 'not in the image' in sub_sentence else True
+    in_the_image = False if 'in the image' not in sub_sentence else in_the_image
+
+    split_aspect_label = sub_sentence.split('in the image with a')
+    if len(split_aspect_label) != 2:
+      return LabelConvertorInputs('', '', None)
+    aspect, label = split_aspect_label
+    aspect = aspect.replace(':', '').replace('is not', '').replace('is',
+                                                                   '').strip()
+    label = label.replace('sentiment', '').strip()
+
+    return LabelConvertorInputs(
+        aspect,
+        label,
+        in_the_image,
+    )
+
+
+class AspectExistLabelWithPolarityLC(LabelConvertor):
+  in_image_sentence_template: str = '{aspect} is in the image, and its sentiment polarity is {label}'
+  not_in_image_sentence_template: str = '{aspect} is not in the image, and its sentiment polarity is {label}'
+
+  @classmethod
+  def decode(self, sentence: str) -> LabelConvertorInputs:
+    split_aspect_label = sentence.split(', and its sentiment polarity is')
+    if len(split_aspect_label) != 2:
+      return LabelConvertorInputs('', '', None)
+
+    in_the_image = False if 'not in the image' in split_aspect_label[0] else True
+    in_the_image = False if 'in the image' not in split_aspect_label[
+        0] else in_the_image
+    aspect = split_aspect_label[0].replace('is not in the image',
+                                           '').replace('is in the image', '')
+    return LabelConvertorInputs(
+        aspect.strip(),
+        split_aspect_label[1].strip(),
+        in_the_image,
+    )
+
+
 def get_label_convertor(convertor_type='classification') -> LabelConvertor:
   if isinstance(convertor_type, str):
     convertor_type = LabelConvertorType[convertor_type.upper()]
   if convertor_type == LabelConvertorType.ASPECT_LABEL_EXIST:
     return AspectLabelExistLC
+  if convertor_type == LabelConvertorType.ASPECT_LABEL_EXIST_WITH_POLARITY:
+    return AspectLabelExistWithPolarityLC
+  if convertor_type == LabelConvertorType.ASPECT_EXIST_LABEL:
+    return AspectExistLabelLC
+  if convertor_type == LabelConvertorType.ASPECT_EXIST_LABEL_WITH_POLARITY:
+    return AspectExistLabelWithPolarityLC
   raise ValueError(f'Please check your input {list(LabelConvertorType)}')

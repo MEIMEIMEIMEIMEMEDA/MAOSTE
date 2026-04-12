@@ -58,9 +58,9 @@ class CoreFactoryConfig:
   eval_type: MetricType = MetricType.CLASSIFICATION
 
   # Dataset root directory
-  train_root: str = 'dataset/npz/train'
-  val_root: str = 'dataset/npz/dev'
-  test_root: str = 'dataset/npz/test'
+  train_root: str = '/home/haomei/raid1/vscodeproject/finish_processed_data/npzfiles/train'
+  val_root: str = '/home/haomei/raid1/vscodeproject/finish_processed_data/npzfiles/dev'
+  test_root: str = '/home/haomei/raid1/vscodeproject/finish_processed_data/npzfiles/test'
   # Dataset useful fields
   dataset_useful_fields: List[str] = field(
       default_factory=lambda: ['image_id', 'words', 'word_ids', 'raw_target'])
